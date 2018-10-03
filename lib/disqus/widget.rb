@@ -8,21 +8,21 @@ module Disqus
   #
   #  Disqus::defaults[:account] = "my_account"
   class Widget
-  
+
     VALID_COLORS = ['blue', 'grey', 'green', 'red', 'orange']
     VALID_NUM_ITEMS = 5..20
     VALID_DEFAULT_TABS = ['people', 'recent', 'popular']
     VALID_AVATAR_SIZES = [24, 32, 48, 92, 128]
     VALID_ORIENTATIONS = ['horizontal', 'vertical']
 
-    ROOT_PATH = 'http://disqus.com/forums/%s/'
+    ROOT_PATH = '//disqus.com/forums/%s/'
     THREAD = ROOT_PATH + 'embed.js'
     COMBO = ROOT_PATH + 'combination_widget.js?num_items=%d&color=%s&default_tab=%s'
     RECENT = ROOT_PATH + 'recent_comments_widget.js?num_items=%d&avatar_size=%d'
     POPULAR = ROOT_PATH + 'popular_threads_widget.js?num_items=%d'
     TOP = ROOT_PATH + 'top_commenters_widget.js?num_items=%d&avatar_size=%d&orientation=%s'
     class << self
-      
+
       # Show the main Disqus thread widget.
       # Options:
       # * <tt>account:</tt> Your Discus account (required).
@@ -36,16 +36,16 @@ module Disqus
         end
         s << '<div id="disqus_thread"></div>'
         s << '<script type="text/javascript" src="' + THREAD + '"></script>'
-        s << '<noscript><a href="http://%s.disqus.com/?url=ref">'
+        s << '<noscript><a href="//%s.disqus.com/?url=ref">'
         s << opts[:view_thread_text]
         s << '</a></noscript>'
         if opts[:show_powered_by]
-          s << '<a href="http://disqus.com" class="dsq-brlink">blog comments '
+          s << '<a href="//disqus.com" class="dsq-brlink">blog comments '
           s << 'powered by <span class="logo-disqus">Disqus</span></a>'
         end
         s % [opts[:account], opts[:account]]
       end
-      
+
       # Loads Javascript to show the number of comments for the page.
       #
       # The Javascript sets the inner html to the comment count for any links
@@ -57,7 +57,7 @@ module Disqus
       # Options:
       # * <tt>account:</tt> Your Discus account (required).
       def comment_counts(opts = {})
-        opts = Disqus::defaults.merge(opts)        
+        opts = Disqus::defaults.merge(opts)
         validate_opts!(opts)
         s = <<-WHIMPER
         <script type="text/javascript">
@@ -77,7 +77,7 @@ module Disqus
         WHIMPER
         s % opts[:account]
       end
-      
+
       # Show the top commenters Disqus thread widget.
       # Options:
       # * <tt>account:</tt> Your Discus account (required).
@@ -90,7 +90,7 @@ module Disqus
       def top_commenters(opts = {})
         opts = Disqus::defaults.merge(opts)
         opts[:header] ||= '<h2 class="dsq-widget-title">Top Commenters</h2>'
-        validate_opts!(opts)        
+        validate_opts!(opts)
         s = '<div id="dsq-topcommenters" class="dsq-widget">'
         s << opts[:header]
         s << '<script type="text/javascript" src="'
@@ -100,11 +100,11 @@ module Disqus
         s << '"></script>'
         s << '</div>'
         if opts[:show_powered_by]
-          s << '<a href="http://disqus.com">Powered by Disqus</a>'
+          s << '<a href="//disqus.com">Powered by Disqus</a>'
         end
         s % [opts[:account], opts[:num_items], opts[:avatar_size], opts[:orientation]]
       end
-      
+
       # Show the popular threads Disqus widget.
       # Options:
       # * <tt>account:</tt> Your Discus account (required).
@@ -122,10 +122,10 @@ module Disqus
         s << '&hide_mods=1' if opts[:hide_mods]
         s << '"></script>'
         s << '</div>'
-        s << '<a href="http://disqus.com">Powered by Disqus</a>' if opts[:show_powered_by]
+        s << '<a href="//disqus.com">Powered by Disqus</a>' if opts[:show_powered_by]
         s % [opts[:account], opts[:num_items]]
       end
-    
+
       # Show the recent comments Disqus widget.
       # Options:
       # * <tt>account:</tt> Your Discus account (required).
@@ -140,16 +140,16 @@ module Disqus
         s = '<div id="dsq-recentcomments" class="dsq-widget">'
         s << opts[:header]
         s << '<script type="text/javascript" src="'
-        s << RECENT 
+        s << RECENT
         s << '&hide_avatars=1' if opts[:hide_avatars]
         s << '"></script>'
         s << '</div>'
         if opts[:show_powered_by]
-          s << '<a href="http://disqus.com">Powered by Disqus</a>'
+          s << '<a href="//disqus.com">Powered by Disqus</a>'
         end
         s % [opts[:account], opts[:num_items], opts[:avatar_size]]
       end
-    
+
       # Show the Disqus combo widget. This is a three-tabbed box with links
       # popular threads, top posters, and recent threads.
       # Options:
@@ -163,10 +163,10 @@ module Disqus
         s = '<script type="text/javascript" src="'
         s << COMBO
         s << '&hide_mods=1' if opts[:hide_mods]
-        s << '"></script>' 
+        s << '"></script>'
         s % [opts[:account], opts[:num_items], opts[:color], opts[:default_tab]]
       end
-      
+
       private
 
       def validate_opts!(opts)
@@ -177,9 +177,9 @@ module Disqus
         raise ArgumentError.new("Invalid avatar size") if opts[:avatar_size] && !VALID_AVATAR_SIZES.include?(opts[:avatar_size])
         raise ArgumentError.new("Invalid orientation") if opts[:orientation] && !VALID_ORIENTATIONS.include?(opts[:orientation])
       end
-      
+
     end
-  
+
   end
 
 end

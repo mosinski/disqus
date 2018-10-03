@@ -4,7 +4,7 @@ require 'net/http'
 require 'uri'
 
 module Disqus
-  
+
   # == Disqus API
   #
   # The Api class implements the Disqus API directly. It is not really
@@ -20,8 +20,8 @@ module Disqus
   # * 'message' - contains the object being returned on success, or an error message on failure.
   #
   # === API Keys
-  # 
-  # There are two different kinds of API keys: 
+  #
+  # There are two different kinds of API keys:
   #
   # ==== User Keys
   #
@@ -30,24 +30,24 @@ module Disqus
   # configured as follows:
   #
   #   Disqus::defaults[:api_key] = "the_user_api_key"
-  #  
+  #
   # ==== Forum Keys
   #
   # Every Disqus forum has a Forum Key. It can be shared among trusted
   # moderators of a forum, and is used to perform actions associated with that
   # forum. The creator of a forum can get the forum's key through the API.
   class Api
-    
-    ROOT = 'http://disqus.com/api'
+
+    ROOT = '//disqus.com/api'
     API_VERSION = '1.1'
-  
+
     class << self
 
-      # Creates a new post on the thread. Does not check against spam filters or ban list. 
+      # Creates a new post on the thread. Does not check against spam filters or ban list.
       # This is intended to allow automated importing of comments.
-      # 
+      #
       # Returns a Hash containing a representation of the post just created:
-      # 
+      #
       # Required options hash elements:
       #
       # * <tt>:forum_api_key</tt> - the API key for the forum
@@ -78,7 +78,7 @@ module Disqus
       end
 
       # Returns an array of hashes representing all forums the user owns. The
-      # user is determined by the API key. 
+      # user is determined by the API key.
       #
       # Options:
       #
@@ -90,7 +90,7 @@ module Disqus
       end
 
       # Returns A string which is the Forum Key for the given forum.
-      # 
+      #
       # Required options hash elements:
       #
       # * <tt>:forum_id</tt> - the unique id of the forum
@@ -102,10 +102,10 @@ module Disqus
         opts[:api_key] ||= Disqus::defaults[:api_key]
         JSON.parse(get('get_forum_api_key', :user_api_key => opts[:api_key], :forum_id => opts[:forum_id]))
       end
-      
+
       # Returns: An array of hashes representing all threads belonging to the
-      # given forum. 
-      #  
+      # given forum.
+      #
       # Required options hash elements:
       #
       # * <tt>:forum_api_key</tt> - the API key for the forum
@@ -113,20 +113,20 @@ module Disqus
       def get_thread_list(opts = {})
         JSON.parse(get('get_thread_list', :forum_id => opts[:forum_id], :forum_api_key => opts[:forum_api_key]))
       end
-      
+
       # Returns a hash having thread_ids as keys and 2-element arrays as
-      # values. 
+      # values.
       #
       # The first array element is the number of visible comments on on the
       # thread; this would be useful for showing users of the site (e.g., "5
-      # Comments"). 
+      # Comments").
       #
       # The second array element is the total number of comments on the
-      # thread. 
+      # thread.
       #
       # These numbers are different because some forums require moderator
       # approval, some messages are flagged as spam, etc.
-      #  
+      #
       # Required options hash elements:
       #
       # * <tt>:forum_api_key</tt> - the API key for the forum
@@ -156,8 +156,8 @@ module Disqus
       end
 
       # Returns an array of hashes representing representing all posts
-      # belonging to the given forum. 
-      #      
+      # belonging to the given forum.
+      #
       # Required options hash elements:
       #
       # * <tt>:forum_api_key</tt> - the API key for the forum
@@ -165,7 +165,7 @@ module Disqus
       def get_thread_posts(opts = {})
         JSON.parse(get('get_thread_posts', :thread_id => opts[:thread_id], :forum_api_key => opts[:forum_api_key]))
       end
-      
+
       # Create or retrieve a thread by an arbitrary identifying string of your
       # choice. For example, you could use your local database's ID for the
       # thread. This method allows you to decouple thread identifiers from the
@@ -173,10 +173,10 @@ module Disqus
       # thread's URL to identify it, which is problematic when URL's do not
       # uniquely identify a resource.) If no thread exists for the given
       # identifier yet (paired with the forum), one will be created.
-      #      
-      # Returns a  hash with two keys: 
       #
-      # * "thread", which is a hash representing the thread corresponding to the identifier; and 
+      # Returns a  hash with two keys:
+      #
+      # * "thread", which is a hash representing the thread corresponding to the identifier; and
       # * "created", which indicates whether the thread was created as a result of this method call. If created, it will have the specified title.
       #
       # Required options hash elements:
@@ -189,7 +189,7 @@ module Disqus
                                                 :identifier => opts[:identifier],
                                                 :title => opts[:title] ))
       end
-      
+
       # Sets the provided values on the thread object.
       #
       # Returns an empty success message.
@@ -208,34 +208,34 @@ module Disqus
       def update_thread(opts = {})
         JSON.parse(post('update_thread/', opts))
       end
-      
+
       # Widget to includes a comment form suitable for use with the Disqus
       # API. This is different from the other widgets in that you can specify
       # the thread identifier being commented on.
       def comment_form(forum_shortname, thread_identifier)
-        url = 'http://disqus.com/api/reply.js?' + 
-          "forum_shortname=#{escape(forum_shortname)}&" + 
+        url = '//disqus.com/api/reply.js?' +
+          "forum_shortname=#{escape(forum_shortname)}&" +
           "thread_identifier=#{escape(thread_identifier)}"
         s = '<div id="dsq-reply">'
         s << '<script type="text/javascript" src="%s"></script>' % url
         s << '</div>'
         return s
       end
-      
+
       private
 
       def escape(string)
         URI::encode(string, /[^a-z0-9]/i)
       end
-      
+
       def get(*args)
         args << { :api_version => API_VERSION }
         open(make_url(*args)) {|u| u.read }
       end
-      
+
       def post(*args)
         args << { :api_version => API_VERSION }
-        url = ROOT + '/' + args.shift 
+        url = ROOT + '/' + args.shift
         post_params = {}
         args.shift.each { |k, v| post_params[k.to_s]=v.to_s }
         Net::HTTP.post_form(URI.parse(url),post_params).body
@@ -250,9 +250,9 @@ module Disqus
       def validate_opts!(opts)
         raise ArgumentError.new("You must specify an :api_key") if !opts[:api_key]
       end
-      
+
     end
-  
+
   end
 
 end
